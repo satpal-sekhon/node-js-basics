@@ -14,7 +14,6 @@ function authMiddleware(req, res, next) {
         token = token.split(' ')[1];
 
         const decoded = jwt.verify(token, 'node-basics-project-secret-key');
-        console.log('decoded', decoded)
         // Attach the user ID to the request object
         req.userId = decoded.userId;
 
