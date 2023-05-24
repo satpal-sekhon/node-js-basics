@@ -1,11 +1,13 @@
 const express = require('express');
 const app = express();
-const port = 5000;
+const userRoutes = require('./routes/userRoutes');
 
-app.get('/', (req, res) => {
-    res.send('Hello World!')
-})
+// Middleware and app configuration code here
 
-app.listen(port, () => {
-    console.log(`App listening on port ${port}`)
-})
+// Mount the user routes
+app.use('/users', userRoutes);
+
+// Start the server
+app.listen(5000, () => {
+    console.log('Server is running on port 5000');
+});
