@@ -32,11 +32,30 @@ async function getUserByEmail(email) {
     return db.collection('users').findOne({ email });
 }
 
+async function findUserByEmailAndIdNotEqual(email, userId) {
+    const db = await connectToDB();
+    return db.collection('users').findOne({ email, _id: { $ne: new ObjectId(userId) } });
+}
+
+async function findUserByPhoneAndIdNotEqual(phone_number, userId) {
+    const db = await connectToDB();
+    return db.collection('users').findOne({ phone_number, _id: { $ne: new ObjectId(userId) } });
+}
+
+async function updateUser(userId, updatedData) {
+    const db = await connectToDB();
+    const result = await db.collection('users').updateOne({ _id: new ObjectId(userId) }, { $set: updatedData });
+    return result.modifiedCount;
+}
+
 module.exports = {
     getUsers,
     createUser,
     checkEmailExists,
     checkPhoneNumberExists,
     deleteUser,
-    getUserByEmail
+    getUserByEmail,
+    findUserByEmailAndIdNotEqual,
+    findUserByPhoneAndIdNotEqual,
+    updateUser
 };
