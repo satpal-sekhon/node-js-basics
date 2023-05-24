@@ -1,12 +1,14 @@
-const userModel = require('../models/user');
+const userModel = require('../models/userModel');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
 
 async function getUsers(req, res) {
     try {
         const users = await userModel.getUsers();
         res.json(users);
     } catch (error) {
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ success: false, error: 'Internal server error' });
     }
 }
 
@@ -42,7 +44,56 @@ async function createUser(req, res) {
     }
 }
 
+async function deleteUser(req, res) {
+    try {
+        const userId = req.params.id;
+        const deletedCount = await userModel.deleteUser(userId);
+
+        if (deletedCount === 0) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
+
+        return res.json({ success: true, message: 'User deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+}
+
+
+async function generateAuthToken(userId) {
+    const token = jwt.sign({ userId }, 'node-basics-project-secret-key', { expiresIn: '1h' });
+    return token;
+}
+
+async function loginUser(req, res) {
+    try {
+        const { email, password } = req.body;
+
+        const user = await userModel.getUserByEmail(email);
+        if (!user) {
+            return res.status(401).json({ success: false, error: 'Invalid email or password' });
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({ success: false, error: 'Invalid email or password' });
+        }
+
+        const token = await generateAuthToken(user._id.toString());
+
+        delete user.password;
+        return res.json({ success: true, token, user });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+}
+
+
 module.exports = {
     getUsers,
-    createUser
+    createUser,
+    deleteUser,
+    loginUser
 };
