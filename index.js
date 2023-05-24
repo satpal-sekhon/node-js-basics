@@ -1,11 +1,12 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const app = express();
-const userRoutes = require('./routes/userRoutes');
+const apiRoutes = require('./routes/apiRoutes');
 
 // Middleware and app configuration code here
 
-// Mount the user routes
-app.use('/users', userRoutes);
+app.use(bodyParser.json());
+app.use('/api', apiRoutes);
 
 // Start the server
 app.listen(5000, () => {
